@@ -38,7 +38,8 @@ class FinPeekApp {
         this.saveTicker(ticker);
         
         await this.fetchStockData(ticker);
-        await this.fetchNews(ticker);
+        await this.fetchMarketData();
+        this.generateStockChart(ticker);
         
         this.startAutoRefresh();
         
@@ -101,67 +102,87 @@ class FinPeekApp {
         `;
     }
 
-    async fetchNews(ticker) {
-        const newsContainer = document.getElementById('newsContainer');
-        
+    async fetchMarketData() {
         try {
-            newsContainer.innerHTML = '<div class="loading">Fetching news...</div>';
+            // Generate mock SPY data
+            const spyPrice = 420 + (Math.random() - 0.5) * 20;
+            const spyChange = (Math.random() - 0.5) * 4;
+            const spyChangePercent = (spyChange / spyPrice) * 100;
             
-            // Simulate API delay for realistic experience
-            await new Promise(resolve => setTimeout(resolve, 500));
+            document.getElementById('spyPrice').textContent = `$${spyPrice.toFixed(2)}`;
+            document.getElementById('spyChange').textContent = `${spyChange >= 0 ? '+' : ''}${spyChangePercent.toFixed(2)}%`;
+            document.getElementById('spyChange').className = `market-stat-value ${spyChange >= 0 ? 'positive' : 'negative'}`;
+            document.getElementById('spyVolume').textContent = `${(Math.random() * 50 + 10).toFixed(1)}M`;
             
-            // Use mock news for now (replace with CORS-enabled news API in production)
-            this.displayMockNews(ticker);
+            this.generateMarketChart();
             
         } catch (error) {
-            console.error('Error fetching news:', error);
-            this.displayMockNews(ticker);
+            console.error('Error fetching market data:', error);
         }
     }
 
-    displayMockNews(ticker) {
-        const newsContainer = document.getElementById('newsContainer');
+    generateStockChart(ticker) {
+        const chartContainer = document.getElementById('stockChart');
+        const chartTitle = document.getElementById('stockChartTitle');
         
-        // Generate dynamic mock news based on ticker and time
-        const newsTemplates = [
-            `${ticker} Reports Strong Quarterly Earnings, Beats Analyst Expectations`,
-            `${ticker} Stock Rallies Following Positive Market Outlook`,
-            `Analysts Upgrade ${ticker} Price Target After Strategic Announcement`,
-            `${ticker} Announces New Partnership in Growing Market Sector`,
-            `${ticker} Leadership Team Outlines Vision for Future Growth`,
-            `${ticker} Shares Rise on Strong Revenue Growth Projections`
-        ];
+        chartTitle.textContent = `${ticker} - 1 Day`;
         
-        const sources = ["Bloomberg", "Reuters", "MarketWatch", "Financial Times", "CNBC", "WSJ"];
-        const timeAgo = ["1 hour ago", "2 hours ago", "3 hours ago", "4 hours ago", "5 hours ago", "6 hours ago"];
+        // Generate mock price data for the day (simplified)
+        const basePrice = this.generateMockPrice(ticker);
+        const dataPoints = [];
         
-        // Generate 3 random but consistent news items based on ticker hash
-        const hash = ticker.split('').reduce((a, b) => {
-            a = ((a << 5) - a) + b.charCodeAt(0);
-            return a & a;
-        }, 0);
-        
-        const mockNews = [];
-        for (let i = 0; i < 3; i++) {
-            const templateIndex = Math.abs(hash + i) % newsTemplates.length;
-            const sourceIndex = Math.abs(hash + i * 2) % sources.length;
-            const timeIndex = i; // Recent to older
-            
-            mockNews.push({
-                headline: newsTemplates[templateIndex],
-                source: sources[sourceIndex],
-                time: timeAgo[timeIndex]
-            });
+        for (let i = 0; i < 24; i++) {
+            const variation = (Math.sin(i / 4) + Math.random() - 0.5) * basePrice * 0.02;
+            dataPoints.push(basePrice + variation);
         }
         
-        const newsHTML = mockNews.map(news => `
-            <div class="news-item">
-                <div class="news-headline">${news.headline}</div>
-                <div class="news-source">${news.source} • ${news.time}</div>
-            </div>
-        `).join('');
+        this.renderSimpleChart(chartContainer, dataPoints, '#007AFF');
+    }
+    
+    generateMarketChart() {
+        const chartContainer = document.getElementById('marketChart');
         
-        newsContainer.innerHTML = newsHTML;
+        // Generate SPY mock data
+        const basePrice = 420;
+        const dataPoints = [];
+        
+        for (let i = 0; i < 24; i++) {
+            const variation = (Math.sin(i / 3) + Math.random() - 0.5) * basePrice * 0.015;
+            dataPoints.push(basePrice + variation);
+        }
+        
+        this.renderSimpleChart(chartContainer, dataPoints, '#00C851');
+    }
+    
+    renderSimpleChart(container, dataPoints, color) {
+        const width = container.offsetWidth || 300;
+        const height = 150;
+        const padding = 10;
+        
+        const min = Math.min(...dataPoints);
+        const max = Math.max(...dataPoints);
+        const range = max - min || 1;
+        
+        let pathData = '';
+        dataPoints.forEach((point, index) => {
+            const x = padding + (index / (dataPoints.length - 1)) * (width - 2 * padding);
+            const y = height - padding - ((point - min) / range) * (height - 2 * padding);
+            pathData += `${index === 0 ? 'M' : 'L'} ${x} ${y} `;
+        });
+        
+        container.innerHTML = `
+            <svg width="100%" height="${height}" style="background: #0a0a0a;">
+                <path d="${pathData}" stroke="${color}" stroke-width="2" fill="none" opacity="0.8" />
+                <path d="${pathData} L ${width - padding} ${height - padding} L ${padding} ${height - padding} Z" 
+                      fill="url(#gradient)" opacity="0.1" />
+                <defs>
+                    <linearGradient id="gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" style="stop-color:${color};stop-opacity:0.3" />
+                        <stop offset="100%" style="stop-color:${color};stop-opacity:0" />
+                    </linearGradient>
+                </defs>
+            </svg>
+        `;
     }
 
     startAutoRefresh() {
@@ -172,7 +193,8 @@ class FinPeekApp {
         this.refreshInterval = setInterval(() => {
             if (this.currentTicker) {
                 this.fetchStockData(this.currentTicker);
-                this.fetchNews(this.currentTicker);
+                this.fetchMarketData();
+                this.generateStockChart(this.currentTicker);
             }
         }, 10000); // Refresh every 10 seconds
     }
@@ -192,7 +214,8 @@ class FinPeekApp {
                 document.getElementById('tickerInput').value = savedTicker;
                 this.currentTicker = savedTicker;
                 this.fetchStockData(savedTicker);
-                this.fetchNews(savedTicker);
+                this.fetchMarketData();
+                this.generateStockChart(savedTicker);
                 this.startAutoRefresh();
             }
         } catch (error) {
