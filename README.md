@@ -65,7 +65,9 @@ python3 -m http.server 8000
 
 - **Provider**: Finnhub
 - **Free Tier**: 30 requests/second (much better than Alpha Vantage!)
-- **Data**: Real-time quotes, intraday & daily historical data
+- **Real-time Data**: ✅ Stock quotes work perfectly on free tier
+- **Historical Data**: ⚠️ Limited on free tier - app uses intelligent mock data based on real current prices
+- **Charts**: Uses realistic price patterns generated from actual current stock prices
 - **Fallback**: Mock data when API unavailable
 
 ## 🔧 Files

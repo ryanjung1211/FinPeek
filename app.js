@@ -243,9 +243,9 @@ class FinPeekApp {
                     dataPoints = dataPoints.slice(-maxPoints); // Take the most recent points
                 }
             } else {
-                // Fallback to mock data if API fails
-                console.warn('Historical data not available, using mock data for chart');
-                dataPoints = this.generateMockChartData(ticker);
+                // Finnhub free tier doesn't include historical data - use intelligent mock data
+                console.warn('Finnhub free tier limitation - generating realistic chart data based on current price');
+                dataPoints = await this.generateRealisticChartData(ticker);
             }
             
             this.renderSimpleChart(chartContainer, dataPoints, '#007AFF');
@@ -268,6 +268,53 @@ class FinPeekApp {
             dataPoints.push(basePrice + variation);
         }
         return dataPoints;
+    }
+
+    async generateRealisticChartData(ticker) {
+        try {
+            // Get current price from Finnhub to base our chart on
+            const quoteUrl = `https://finnhub.io/api/v1/quote?symbol=${ticker}&token=${this.apiKey}`;
+            const response = await fetch(quoteUrl);
+            const data = await response.json();
+            
+            let currentPrice;
+            if (data && data.c && data.c > 0) {
+                currentPrice = data.c;
+            } else {
+                // Fallback to mock price if quote fails
+                currentPrice = this.generateMockPrice(ticker);
+            }
+            
+            // Generate realistic price movement based on current price
+            const dataPoints = [];
+            const pointCount = this.stockTimeFrame === '1H' ? 24 : 30;
+            
+            // Create a realistic price trajectory that ends at current price
+            for (let i = 0; i < pointCount; i++) {
+                const timeProgress = i / (pointCount - 1); // 0 to 1
+                
+                // Base variation that's stronger at beginning, smoother towards current price
+                const volatility = this.stockTimeFrame === '1H' ? 0.015 : 0.03; // 1.5% hourly, 3% daily
+                const trendComponent = Math.sin(timeProgress * Math.PI * 2) * volatility;
+                const randomComponent = (Math.random() - 0.5) * volatility * (1 - timeProgress * 0.5);
+                
+                // Start from a price slightly different from current, trend towards current
+                const startPrice = currentPrice * (1 + (Math.random() - 0.5) * volatility * 2);
+                const trendTowardsCurrent = startPrice + (currentPrice - startPrice) * timeProgress;
+                
+                const finalPrice = trendTowardsCurrent + currentPrice * (trendComponent + randomComponent);
+                dataPoints.push(Math.max(finalPrice, currentPrice * 0.5)); // Prevent negative prices
+            }
+            
+            // Ensure the last point is close to the actual current price
+            dataPoints[dataPoints.length - 1] = currentPrice + (Math.random() - 0.5) * currentPrice * 0.005;
+            
+            return dataPoints;
+            
+        } catch (error) {
+            console.warn('Failed to get current price for realistic chart, using basic mock data');
+            return this.generateMockChartData(ticker);
+        }
     }
     
     async generateMarketChart() {
@@ -308,9 +355,9 @@ class FinPeekApp {
                     dataPoints = dataPoints.slice(-maxPoints); // Take the most recent points
                 }
             } else {
-                // Fallback to mock data if API fails
-                console.warn('SPY historical data not available, using mock data for chart');
-                dataPoints = this.generateMockMarketChartData();
+                // Finnhub free tier doesn't include historical data - use intelligent mock data
+                console.warn('Finnhub free tier limitation - generating realistic SPY chart data');
+                dataPoints = await this.generateRealisticChartData('SPY');
             }
             
             this.renderSimpleChart(chartContainer, dataPoints, '#00C851');
