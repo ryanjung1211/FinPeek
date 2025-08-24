@@ -27,19 +27,27 @@
             color: #fff;
             min-height: 100vh;
             overflow-x: hidden;
+            /* Fix for iPhone PWA bottom bar */
+            padding-bottom: env(safe-area-inset-bottom);
+            -webkit-overflow-scrolling: touch;
         }
 
         .container {
             padding: 20px;
             max-width: 100vw;
             min-height: 100vh;
+            min-height: calc(100vh - env(safe-area-inset-bottom));
             display: flex;
             flex-direction: column;
+            /* Fix for iPhone PWA */
+            position: relative;
+            z-index: 1;
         }
 
         .header {
             text-align: center;
             margin-bottom: 30px;
+            position: relative;
         }
 
         .app-title {
@@ -47,6 +55,28 @@
             font-weight: 300;
             letter-spacing: 2px;
             margin-bottom: 10px;
+            animation: fadeInUp 0.6s ease;
+            background: linear-gradient(45deg, #007AFF, #00C851, #007AFF);
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradientShift 3s ease-in-out infinite, fadeInUp 0.6s ease;
+        }
+        
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .input-section {
@@ -54,6 +84,38 @@
             gap: 10px;
             margin-bottom: 30px;
             flex-wrap: wrap;
+            transition: all 0.3s ease;
+            opacity: 1;
+            max-height: 200px;
+            overflow: hidden;
+        }
+        
+        .input-section.hidden {
+            opacity: 0;
+            max-height: 0;
+            margin-bottom: 0;
+            pointer-events: none;
+        }
+        
+        .ticker-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: #fff;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            transition: all 0.2s ease;
+            z-index: 10;
+        }
+        
+        .ticker-toggle:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
         }
 
         .ticker-input {
@@ -94,11 +156,40 @@
             padding: 30px 20px;
             border-radius: 12px;
             margin-bottom: 30px;
-            transition: background-color 0.3s ease;
+            transition: all 0.3s ease;
             min-height: 150px;
             display: flex;
             flex-direction: column;
             justify-content: center;
+            animation: slideInLeft 0.5s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stock-display::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transition: left 0.6s ease;
+        }
+        
+        .stock-display:hover::before {
+            left: 100%;
+        }
+        
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
         }
 
         .stock-display.positive {
@@ -124,6 +215,12 @@
             font-size: 3rem;
             font-weight: 700;
             margin-bottom: 10px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
         }
 
         .stock-change {
@@ -153,6 +250,30 @@
             margin-bottom: 15px;
             border-radius: 8px;
             border-left: 3px solid #007AFF;
+            transition: all 0.2s ease;
+            animation: slideInRight 0.4s ease;
+            animation-fill-mode: both;
+        }
+        
+        .news-item:nth-child(1) { animation-delay: 0.1s; }
+        .news-item:nth-child(2) { animation-delay: 0.2s; }
+        .news-item:nth-child(3) { animation-delay: 0.3s; }
+        
+        .news-item:hover {
+            background: #1a1a1a;
+            transform: translateX(5px);
+            border-left-color: #00C851;
+        }
+        
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
         }
 
         .news-headline {
@@ -242,6 +363,7 @@
     </video>
 
     <div class="container">
+        <button id="tickerToggle" class="ticker-toggle">📊</button>
         <div class="left-panel">
             <div class="header">
                 <h1 class="app-title">FINPEEK</h1>
@@ -267,6 +389,6 @@
         </div>
     </div>
 
-    <script src="app.js?v=2"></script>
+    <script src="app.js?v=3"></script>
 </body>
 </html>

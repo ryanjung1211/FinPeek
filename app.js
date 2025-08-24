@@ -14,6 +14,7 @@ class FinPeekApp {
     bindEvents() {
         const tickerInput = document.getElementById('tickerInput');
         const searchBtn = document.getElementById('searchBtn');
+        const tickerToggle = document.getElementById('tickerToggle');
 
         searchBtn.addEventListener('click', () => this.handleSearch());
         tickerInput.addEventListener('keypress', (e) => {
@@ -25,6 +26,8 @@ class FinPeekApp {
         tickerInput.addEventListener('input', (e) => {
             e.target.value = e.target.value.toUpperCase();
         });
+
+        tickerToggle.addEventListener('click', () => this.toggleInputSection());
     }
 
     async handleSearch() {
@@ -38,6 +41,9 @@ class FinPeekApp {
         await this.fetchNews(ticker);
         
         this.startAutoRefresh();
+        
+        // Hide input section after first search
+        this.hideInputSection();
     }
 
     async fetchStockData(ticker) {
@@ -248,6 +254,25 @@ class FinPeekApp {
                 timestamp.style.opacity = timestamp.style.opacity === '0.69' ? '0.7' : '0.69';
             }
         }, 30000); // Every 30 seconds
+    }
+
+    toggleInputSection() {
+        const inputSection = document.querySelector('.input-section');
+        if (inputSection.classList.contains('hidden')) {
+            this.showInputSection();
+        } else {
+            this.hideInputSection();
+        }
+    }
+
+    hideInputSection() {
+        const inputSection = document.querySelector('.input-section');
+        inputSection.classList.add('hidden');
+    }
+
+    showInputSection() {
+        const inputSection = document.querySelector('.input-section');
+        inputSection.classList.remove('hidden');
     }
 }
 
