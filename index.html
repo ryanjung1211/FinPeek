@@ -397,6 +397,17 @@
         </div>
     </div>
 
-    <script src="app.js?v=6"></script>
+    <!-- Environment variables from Vercel (production) or local config (development) -->
+    <script src="/env.js"></script>
+    <script>
+      // Fallback to local config if env.js fails (for local development)
+      if (!window.ALPHA_VANTAGE_API_KEY) {
+        const script = document.createElement('script');
+        script.src = 'config.js';
+        script.onerror = () => console.log('No local config found, using demo API key');
+        document.head.appendChild(script);
+      }
+    </script>
+    <script src="app.js?v=8"></script>
 </body>
 </html>

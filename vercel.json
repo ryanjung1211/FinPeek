@@ -1,0 +1,29 @@
+{
+  "build": {
+    "env": {
+      "ALPHA_VANTAGE_API_KEY": "@alpha-vantage-key"
+    }
+  },
+  "functions": {
+    "app.js": {
+      "includeFiles": "**"
+    }
+  },
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Cross-Origin-Embedder-Policy",
+          "value": "unsafe-none"
+        }
+      ]
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/env.js",
+      "destination": "/api/env"
+    }
+  ]
+}

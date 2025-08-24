@@ -1,67 +1,82 @@
-# FinPeek - Stock Ticker Dashboard
+# FinPeek 📊
 
-A simple, mobile-first web app for glanceable stock information, optimized for iPhone Safari in landscape mode on MagSafe stands.
+A sleek, real-time stock market dashboard with automatic timeframe cycling and live market data.
 
-## Features
+## 🚀 Features
 
-✅ **Stock Price Display**
-- Enter any stock ticker (e.g., AAPL, TSLA, GOOGL)
-- Shows current price and daily change percentage
-- Green/red color coding for up/down movements
-- Auto-refreshes every 10 seconds
+- **Real-time stock quotes** from Alpha Vantage API
+- **Interactive charts** with 1H and 1D timeframes  
+- **Automatic cycling** between timeframes every 5 seconds
+- **SPY market overview** with live data
+- **PWA support** for mobile devices
+- **Responsive design** for all screen sizes
+- **Secure API key management** for Vercel deployment
 
-✅ **News Headlines**
-- Displays 3 recent news headlines related to the stock
-- Mock news data for demonstration (can be replaced with real news API)
+## 🛠️ Vercel Deployment Setup
 
-✅ **Mobile-First Design**
-- Optimized for iPhone Safari
-- Responsive layout for landscape mode
-- Clean, minimal interface
+### 1. Fork/Clone Repository
+```bash
+git clone <your-repo-url>
+cd FinPeek
+```
 
-✅ **Anti-Sleep Features**
-- Prevents iPhone Safari from auto-sleeping
-- Uses Wake Lock API when available
-- Fallback methods for older devices
+### 2. Add Environment Variable in Vercel
+1. Get a free API key from [Alpha Vantage](https://www.alphavantage.co/support/#api-key)
+2. In your Vercel dashboard, go to your project settings
+3. Navigate to **Environment Variables**
+4. Add a new variable:
+   - **Name**: `ALPHA_VANTAGE_API_KEY`
+   - **Value**: Your actual API key from Alpha Vantage
+   - **Environment**: Production (and Preview if desired)
 
-✅ **PWA Support**
-- Installable as a Progressive Web App
-- Can be added to iPhone home screen
-- Works offline with cached data
+### 3. Deploy
+Push to your GitHub repository and Vercel will automatically deploy with your secure API key.
 
-✅ **Local Storage**
-- Remembers your last searched ticker
-- Automatically loads on app start
+## 🏠 Local Development
 
-## How to Use
+For local development, create a `config.js` file:
+```bash
+cp config.example.js config.js
+# Edit config.js and add your API key
+```
 
-1. **Open the app** in iPhone Safari
-2. **Enter a stock ticker** (e.g., AAPL) in the input field
-3. **Tap "GET QUOTE"** or press Enter
-4. **View the stock data** with color-coded price changes
-5. **Place your phone** on a MagSafe stand in landscape mode
-6. **Let it run** - it will auto-refresh every 10 seconds
+Then serve the files over HTTP:
+```bash
+python3 -m http.server 8000
+# Open http://localhost:8000
+```
 
-## Installation as PWA
+## 🔒 Security
 
-1. Open the app in Safari
-2. Tap the Share button
-3. Tap "Add to Home Screen"
-4. Tap "Add" to confirm
-5. Launch from your home screen
+- **Production**: API key stored as Vercel environment variable (never in code)
+- **Development**: API key in local `config.js` (git-ignored)
+- **Fallback**: Demo data when no API key available
+- **Public repo safe**: No secrets committed to version control
 
-## Technical Details
+## 📱 Usage
 
-- **Stock Data**: Yahoo Finance API (free)
-- **Anti-Sleep**: Wake Lock API + fallback methods
-- **Offline Support**: Service Worker caching
-- **Storage**: localStorage for ticker persistence
+1. Enter a stock ticker (e.g., AAPL, MSFT, TSLA)  
+2. View real-time prices and charts
+3. Charts automatically cycle between 1H and 1D views
+4. Click time buttons to manually control timeframes
+5. Use the 📊 button to show/hide search input
 
-## Files
+## 🌐 API Information
 
-- `index.html` - Main HTML structure and styles
-- `app.js` - JavaScript functionality and API integration
+- **Provider**: Alpha Vantage
+- **Free Tier**: 25 requests/day, 5 requests/minute
+- **Data**: Real-time quotes, intraday & daily historical data
+- **Fallback**: Mock data when API unavailable
+
+## 🔧 Files
+
+- `index.html` - Main interface and styles
+- `app.js` - Core application logic and API integration
+- `api/env.js` - Vercel function to inject environment variables
+- `vercel.json` - Vercel configuration
 - `manifest.json` - PWA configuration
 - `sw.js` - Service worker for offline functionality
 
-Perfect for keeping an eye on your stocks while your phone sits on a desk stand!
+---
+
+**Perfect for monitoring stocks on any device! 📈**
