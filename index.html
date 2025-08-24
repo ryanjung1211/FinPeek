@@ -315,43 +315,6 @@
             }
         }
 
-        .market-stats {
-            display: flex;
-            justify-content: space-around;
-            margin-bottom: 15px;
-            text-align: center;
-        }
-        
-        /* Compact market stats for iPhone 15 Pro horizontal mode */
-        @media screen and (orientation: landscape) and (max-height: 400px) {
-            .market-stats {
-                margin-bottom: 6px;
-            }
-        }
-
-        .market-stat {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .market-stat-label {
-            font-size: 0.8rem;
-            color: #888;
-            margin-bottom: 4px;
-        }
-
-        .market-stat-value {
-            font-size: 1rem;
-            font-weight: 600;
-        }
-
-        .market-stat-value.positive {
-            color: #00C851;
-        }
-
-        .market-stat-value.negative {
-            color: #FF4444;
-        }
 
         .loading {
             text-align: center;
@@ -446,30 +409,19 @@
                 </div>
             </div>
             
-            <!-- Market Box (Right) -->
+            <!-- SPY Box (Right) -->
             <div class="chart-box">
                 <div class="chart-header">
-                    <h3 class="chart-title">Market (SPY)</h3>
+                    <h3 class="chart-title" id="spyChartTitle">SPY</h3>
                     <button class="time-toggle" id="spyTimeToggle">1D</button>
                 </div>
                 
-                <div class="market-stats">
-                    <div class="market-stat">
-                        <span class="market-stat-label">SPY</span>
-                        <span class="market-stat-value" id="spyPrice">$---</span>
-                    </div>
-                    <div class="market-stat">
-                        <span class="market-stat-label">Change</span>
-                        <span class="market-stat-value" id="spyChange">--%</span>
-                    </div>
-                    <div class="market-stat">
-                        <span class="market-stat-label">Volume</span>
-                        <span class="market-stat-value" id="spyVolume">---</span>
-                    </div>
+                <div id="spyDetails" class="stock-details neutral">
+                    <div class="loading">Loading SPY data...</div>
                 </div>
                 
                 <div class="chart-canvas" id="marketChart">
-                    <div class="loading">Market chart will appear here</div>
+                    <div class="loading">SPY chart will appear here</div>
                 </div>
             </div>
         </div>

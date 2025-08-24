@@ -158,6 +158,22 @@ class FinPeekApp {
         `;
     }
 
+    displaySpyData(data) {
+        const spyDetails = document.getElementById('spyDetails');
+        const isPositive = data.change >= 0;
+        const changeSymbol = isPositive ? '+' : '';
+        
+        spyDetails.className = `stock-details ${isPositive ? 'positive' : 'negative'}`;
+        
+        spyDetails.innerHTML = `
+            <div class="stock-symbol">${data.symbol}</div>
+            <div class="stock-price">$${data.price.toFixed(2)}</div>
+            <div class="stock-change">
+                ${changeSymbol}$${data.change.toFixed(2)} (${changeSymbol}${data.changePercent.toFixed(2)}%)
+            </div>
+        `;
+    }
+
     async fetchMarketData() {
         try {
             // Fetch real SPY data from Finnhub
@@ -171,12 +187,15 @@ class FinPeekApp {
                 const spyChange = data.d; // Change
                 const spyChangePercent = data.dp; // Change percent
                 
-                document.getElementById('spyPrice').textContent = `$${spyPrice.toFixed(2)}`;
-                document.getElementById('spyChange').textContent = `${spyChange >= 0 ? '+' : ''}${spyChangePercent.toFixed(2)}%`;
-                document.getElementById('spyChange').className = `market-stat-value ${spyChange >= 0 ? 'positive' : 'negative'}`;
+                const spyData = {
+                    symbol: 'SPY',
+                    price: spyPrice,
+                    change: spyChange,
+                    changePercent: spyChangePercent,
+                    currency: 'USD'
+                };
                 
-                // For volume, we'll use mock data since Finnhub quote doesn't include volume in free tier
-                document.getElementById('spyVolume').textContent = `${(Math.random() * 50 + 10).toFixed(1)}M`;
+                this.displaySpyData(spyData);
                 
             } else {
                 // Fallback to mock data
@@ -199,10 +218,15 @@ class FinPeekApp {
         const spyChange = (Math.random() - 0.5) * 4;
         const spyChangePercent = (spyChange / spyPrice) * 100;
         
-        document.getElementById('spyPrice').textContent = `$${spyPrice.toFixed(2)}`;
-        document.getElementById('spyChange').textContent = `${spyChange >= 0 ? '+' : ''}${spyChangePercent.toFixed(2)}%`;
-        document.getElementById('spyChange').className = `market-stat-value ${spyChange >= 0 ? 'positive' : 'negative'}`;
-        document.getElementById('spyVolume').textContent = `${(Math.random() * 50 + 10).toFixed(1)}M`;
+        const spyData = {
+            symbol: 'SPY',
+            price: spyPrice,
+            change: spyChange,
+            changePercent: spyChangePercent,
+            currency: 'USD'
+        };
+        
+        this.displaySpyData(spyData);
     }
 
     async generateStockChart(ticker) {
