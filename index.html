@@ -399,11 +399,19 @@
 
     <!-- Load configuration - try env.js first (Vercel), then config.js (local) -->
     <script>
-      // Function to load the main app after config is ready
+      // Function to load the main app after config is ready AND DOM is ready
       function loadApp() {
-        const script = document.createElement('script');
-        script.src = 'app.js?v=9';
-        document.head.appendChild(script);
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', () => {
+            const script = document.createElement('script');
+            script.src = 'app.js?v=10';
+            document.head.appendChild(script);
+          });
+        } else {
+          const script = document.createElement('script');
+          script.src = 'app.js?v=10';
+          document.head.appendChild(script);
+        }
       }
       
       // Try to load Vercel env.js first

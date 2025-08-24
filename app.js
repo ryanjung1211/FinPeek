@@ -30,7 +30,12 @@ class FinPeekApp {
         const stockTimeToggle = document.getElementById('stockTimeToggle');
         const spyTimeToggle = document.getElementById('spyTimeToggle');
 
-        searchBtn.addEventListener('click', () => this.handleSearch());
+        console.log('Binding events...', { tickerInput, searchBtn, tickerToggle, stockTimeToggle, spyTimeToggle });
+
+        searchBtn.addEventListener('click', () => {
+            console.log('Search button clicked!');
+            this.handleSearch();
+        });
         tickerInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 this.handleSearch();
@@ -47,7 +52,9 @@ class FinPeekApp {
     }
 
     async handleSearch() {
+        console.log('handleSearch called');
         const ticker = document.getElementById('tickerInput').value.trim().toUpperCase();
+        console.log('Ticker entered:', ticker);
         if (!ticker) return;
 
         this.currentTicker = ticker;
