@@ -1,11 +1,6 @@
 {
-  "build": {
-    "env": {
-      "ALPHA_VANTAGE_API_KEY": "@alpha-vantage-key"
-    }
-  },
   "functions": {
-    "app.js": {
+    "api/env.js": {
       "includeFiles": "**"
     }
   },
