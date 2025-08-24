@@ -43,6 +43,19 @@
             position: relative;
             z-index: 1;
         }
+        
+        .main-content {
+            display: flex;
+            flex: 1;
+            gap: 20px;
+            flex-direction: column;
+        }
+        
+        @media screen and (min-width: 768px) {
+            .main-content {
+                flex-direction: row;
+            }
+        }
 
         .header {
             text-align: center;
@@ -139,27 +152,33 @@
             background: #0056CC;
         }
 
-        .stock-display {
-            text-align: center;
-            padding: 30px 20px;
+        .chart-box {
+            background: #111;
             border-radius: 12px;
-            margin-bottom: 30px;
-            transition: background-color 0.3s ease;
-            min-height: 150px;
+            padding: 20px;
+            flex: 1;
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            min-height: 400px;
+        }
+        
+        .stock-details {
+            text-align: center;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            transition: background-color 0.3s ease;
         }
 
-        .stock-display.positive {
+        .stock-details.positive {
             background: linear-gradient(135deg, #00C851 0%, #007E33 100%);
         }
 
-        .stock-display.negative {
+        .stock-details.negative {
             background: linear-gradient(135deg, #FF4444 0%, #CC0000 100%);
         }
 
-        .stock-display.neutral {
+        .stock-details.neutral {
             background: linear-gradient(135deg, #333 0%, #222 100%);
         }
 
@@ -187,42 +206,48 @@
             margin-top: 15px;
         }
 
-        .charts-section {
-            flex: 1;
+        .chart-header {
             display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .chart-container {
-            background: #111;
-            border-radius: 12px;
-            padding: 20px;
-            min-height: 200px;
-            display: flex;
-            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
         }
 
         .chart-title {
-            font-size: 1.1rem;
-            margin-bottom: 15px;
+            font-size: 1.3rem;
+            color: #fff;
+            margin: 0;
+        }
+
+        .time-toggle {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
             color: #ccc;
-            text-align: center;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .time-toggle:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
         }
 
         .chart-canvas {
             flex: 1;
-            min-height: 150px;
+            min-height: 200px;
             background: #0a0a0a;
             border-radius: 8px;
             position: relative;
             overflow: hidden;
         }
 
-        .market-overview {
+        .market-stats {
             display: flex;
             justify-content: space-around;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
             text-align: center;
         }
 
@@ -270,19 +295,10 @@
         @media screen and (orientation: landscape) and (max-height: 500px) {
             .container {
                 padding: 15px;
+            }
+            
+            .main-content {
                 flex-direction: row;
-                gap: 20px;
-            }
-            
-            .left-panel {
-                flex: 1;
-                display: flex;
-                flex-direction: column;
-            }
-            
-            .right-panel {
-                flex: 1;
-                overflow-y: auto;
             }
             
             .app-title {
@@ -290,14 +306,13 @@
                 margin-bottom: 15px;
             }
             
-            .stock-display {
-                margin-bottom: 20px;
-                min-height: 120px;
-                padding: 20px 15px;
+            .stock-details {
+                padding: 15px;
+                margin-bottom: 15px;
             }
             
             .stock-price {
-                font-size: 2.2rem;
+                font-size: 2rem;
             }
             
             .input-section {
@@ -327,54 +342,61 @@
 
     <div class="container">
         <button id="tickerToggle" class="ticker-toggle">📊</button>
-        <div class="left-panel">
-            <div class="header">
-                <h1 class="app-title">FINPEEK</h1>
-            </div>
-            
-            <div class="input-section">
-                <input type="text" id="tickerInput" class="ticker-input" placeholder="Enter ticker (e.g., AAPL)" maxlength="10">
-                <button id="searchBtn" class="search-btn">GET QUOTE</button>
-            </div>
-            
-            <div id="stockDisplay" class="stock-display neutral">
-                <div class="loading">Enter a stock ticker to get started</div>
-            </div>
+        <div class="header">
+            <h1 class="app-title">FINPEEK</h1>
         </div>
         
-        <div class="right-panel">
-            <div class="charts-section">
-                <div class="chart-container">
+        <div class="input-section">
+            <input type="text" id="tickerInput" class="ticker-input" placeholder="Enter ticker (e.g., AAPL)" maxlength="10">
+            <button id="searchBtn" class="search-btn">GET QUOTE</button>
+        </div>
+        
+        <div class="main-content">
+            <!-- Stock Box (Left) -->
+            <div class="chart-box">
+                <div class="chart-header">
                     <h3 class="chart-title" id="stockChartTitle">Stock Chart</h3>
-                    <div class="chart-canvas" id="stockChart">
-                        <div class="loading">Stock chart will appear here</div>
+                    <button class="time-toggle" id="stockTimeToggle">1D</button>
+                </div>
+                
+                <div id="stockDetails" class="stock-details neutral">
+                    <div class="loading">Enter a stock ticker to get started</div>
+                </div>
+                
+                <div class="chart-canvas" id="stockChart">
+                    <div class="loading">Stock chart will appear here</div>
+                </div>
+            </div>
+            
+            <!-- Market Box (Right) -->
+            <div class="chart-box">
+                <div class="chart-header">
+                    <h3 class="chart-title">Market (SPY)</h3>
+                    <button class="time-toggle" id="spyTimeToggle">1D</button>
+                </div>
+                
+                <div class="market-stats">
+                    <div class="market-stat">
+                        <span class="market-stat-label">SPY</span>
+                        <span class="market-stat-value" id="spyPrice">$---</span>
+                    </div>
+                    <div class="market-stat">
+                        <span class="market-stat-label">Change</span>
+                        <span class="market-stat-value" id="spyChange">--%</span>
+                    </div>
+                    <div class="market-stat">
+                        <span class="market-stat-label">Volume</span>
+                        <span class="market-stat-value" id="spyVolume">---</span>
                     </div>
                 </div>
                 
-                <div class="chart-container">
-                    <h3 class="chart-title">Market Overview (SPY)</h3>
-                    <div class="market-overview">
-                        <div class="market-stat">
-                            <span class="market-stat-label">SPY</span>
-                            <span class="market-stat-value" id="spyPrice">$---</span>
-                        </div>
-                        <div class="market-stat">
-                            <span class="market-stat-label">Change</span>
-                            <span class="market-stat-value" id="spyChange">--%</span>
-                        </div>
-                        <div class="market-stat">
-                            <span class="market-stat-label">Volume</span>
-                            <span class="market-stat-value" id="spyVolume">---</span>
-                        </div>
-                    </div>
-                    <div class="chart-canvas" id="marketChart">
-                        <div class="loading">Market chart will appear here</div>
-                    </div>
+                <div class="chart-canvas" id="marketChart">
+                    <div class="loading">Market chart will appear here</div>
                 </div>
             </div>
         </div>
     </div>
 
-    <script src="app.js?v=5"></script>
+    <script src="app.js?v=6"></script>
 </body>
 </html>

@@ -2,6 +2,8 @@ class FinPeekApp {
     constructor() {
         this.currentTicker = '';
         this.refreshInterval = null;
+        this.stockTimeFrame = '1D'; // '1D' or '1H'
+        this.spyTimeFrame = '1D';
         this.init();
     }
 
@@ -15,6 +17,8 @@ class FinPeekApp {
         const tickerInput = document.getElementById('tickerInput');
         const searchBtn = document.getElementById('searchBtn');
         const tickerToggle = document.getElementById('tickerToggle');
+        const stockTimeToggle = document.getElementById('stockTimeToggle');
+        const spyTimeToggle = document.getElementById('spyTimeToggle');
 
         searchBtn.addEventListener('click', () => this.handleSearch());
         tickerInput.addEventListener('keypress', (e) => {
@@ -28,6 +32,8 @@ class FinPeekApp {
         });
 
         tickerToggle.addEventListener('click', () => this.toggleInputSection());
+        stockTimeToggle.addEventListener('click', () => this.toggleStockTimeFrame());
+        spyTimeToggle.addEventListener('click', () => this.toggleSpyTimeFrame());
     }
 
     async handleSearch() {
@@ -66,6 +72,7 @@ class FinPeekApp {
             };
             
             this.displayStockData(stockData);
+            document.getElementById('stockChartTitle').textContent = `${ticker}`;
             
         } catch (error) {
             console.error('Error fetching stock data:', error);
@@ -86,19 +93,18 @@ class FinPeekApp {
     }
 
     displayStockData(data) {
-        const stockDisplay = document.getElementById('stockDisplay');
+        const stockDetails = document.getElementById('stockDetails');
         const isPositive = data.change >= 0;
         const changeSymbol = isPositive ? '+' : '';
         
-        stockDisplay.className = `stock-display ${isPositive ? 'positive' : 'negative'}`;
+        stockDetails.className = `stock-details ${isPositive ? 'positive' : 'negative'}`;
         
-        stockDisplay.innerHTML = `
+        stockDetails.innerHTML = `
             <div class="stock-symbol">${data.symbol}</div>
             <div class="stock-price">$${data.price.toFixed(2)}</div>
             <div class="stock-change">
                 ${changeSymbol}$${data.change.toFixed(2)} (${changeSymbol}${data.changePercent.toFixed(2)}%)
             </div>
-            <div class="last-updated">Last updated: ${new Date().toLocaleTimeString()}</div>
         `;
     }
 
@@ -123,16 +129,14 @@ class FinPeekApp {
 
     generateStockChart(ticker) {
         const chartContainer = document.getElementById('stockChart');
-        const chartTitle = document.getElementById('stockChartTitle');
         
-        chartTitle.textContent = `${ticker} - 1 Day`;
-        
-        // Generate mock price data for the day (simplified)
+        // Generate mock price data based on timeframe
         const basePrice = this.generateMockPrice(ticker);
         const dataPoints = [];
+        const pointCount = this.stockTimeFrame === '1H' ? 60 : 24; // minutes or hours
         
-        for (let i = 0; i < 24; i++) {
-            const variation = (Math.sin(i / 4) + Math.random() - 0.5) * basePrice * 0.02;
+        for (let i = 0; i < pointCount; i++) {
+            const variation = (Math.sin(i / (pointCount / 4)) + Math.random() - 0.5) * basePrice * 0.02;
             dataPoints.push(basePrice + variation);
         }
         
@@ -142,12 +146,13 @@ class FinPeekApp {
     generateMarketChart() {
         const chartContainer = document.getElementById('marketChart');
         
-        // Generate SPY mock data
+        // Generate SPY mock data based on timeframe
         const basePrice = 420;
         const dataPoints = [];
+        const pointCount = this.spyTimeFrame === '1H' ? 60 : 24;
         
-        for (let i = 0; i < 24; i++) {
-            const variation = (Math.sin(i / 3) + Math.random() - 0.5) * basePrice * 0.015;
+        for (let i = 0; i < pointCount; i++) {
+            const variation = (Math.sin(i / (pointCount / 3)) + Math.random() - 0.5) * basePrice * 0.015;
             dataPoints.push(basePrice + variation);
         }
         
@@ -296,6 +301,20 @@ class FinPeekApp {
     showInputSection() {
         const inputSection = document.querySelector('.input-section');
         inputSection.classList.remove('hidden');
+    }
+    
+    toggleStockTimeFrame() {
+        this.stockTimeFrame = this.stockTimeFrame === '1D' ? '1H' : '1D';
+        document.getElementById('stockTimeToggle').textContent = this.stockTimeFrame;
+        if (this.currentTicker) {
+            this.generateStockChart(this.currentTicker);
+        }
+    }
+    
+    toggleSpyTimeFrame() {
+        this.spyTimeFrame = this.spyTimeFrame === '1D' ? '1H' : '1D';
+        document.getElementById('spyTimeToggle').textContent = this.spyTimeFrame;
+        this.generateMarketChart();
     }
 }
 
