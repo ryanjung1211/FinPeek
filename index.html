@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FinPeek - Stock Ticker Dashboard</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#000000">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="FinPeek">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #000;
+            color: #fff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            padding: 20px;
+            max-width: 100vw;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .app-title {
+            font-size: 2rem;
+            font-weight: 300;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+        }
+
+        .input-section {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .ticker-input {
+            flex: 1;
+            min-width: 120px;
+            padding: 15px;
+            font-size: 1.2rem;
+            border: 2px solid #333;
+            border-radius: 8px;
+            background: #111;
+            color: #fff;
+            text-transform: uppercase;
+            text-align: center;
+        }
+
+        .ticker-input:focus {
+            outline: none;
+            border-color: #007AFF;
+        }
+
+        .search-btn {
+            padding: 15px 25px;
+            font-size: 1.2rem;
+            background: #007AFF;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .search-btn:hover {
+            background: #0056CC;
+        }
+
+        .stock-display {
+            text-align: center;
+            padding: 30px 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            transition: background-color 0.3s ease;
+            min-height: 150px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .stock-display.positive {
+            background: linear-gradient(135deg, #00C851 0%, #007E33 100%);
+        }
+
+        .stock-display.negative {
+            background: linear-gradient(135deg, #FF4444 0%, #CC0000 100%);
+        }
+
+        .stock-display.neutral {
+            background: linear-gradient(135deg, #333 0%, #222 100%);
+        }
+
+        .stock-symbol {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+
+        .stock-price {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .stock-change {
+            font-size: 1.4rem;
+            font-weight: 500;
+        }
+
+        .last-updated {
+            font-size: 0.9rem;
+            opacity: 0.7;
+            margin-top: 15px;
+        }
+
+        .news-section {
+            flex: 1;
+        }
+
+        .news-title {
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            color: #ccc;
+        }
+
+        .news-item {
+            background: #111;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            border-left: 3px solid #007AFF;
+        }
+
+        .news-headline {
+            font-size: 1rem;
+            line-height: 1.4;
+            margin-bottom: 8px;
+        }
+
+        .news-source {
+            font-size: 0.8rem;
+            color: #888;
+        }
+
+        .loading {
+            text-align: center;
+            color: #888;
+            font-size: 1.1rem;
+            padding: 20px;
+        }
+
+        .error {
+            color: #FF4444;
+            text-align: center;
+            padding: 20px;
+            background: #330;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        /* Landscape mobile optimizations */
+        @media screen and (orientation: landscape) and (max-height: 500px) {
+            .container {
+                padding: 15px;
+                flex-direction: row;
+                gap: 20px;
+            }
+            
+            .left-panel {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+            }
+            
+            .right-panel {
+                flex: 1;
+                overflow-y: auto;
+            }
+            
+            .app-title {
+                font-size: 1.5rem;
+                margin-bottom: 15px;
+            }
+            
+            .stock-display {
+                margin-bottom: 20px;
+                min-height: 120px;
+                padding: 20px 15px;
+            }
+            
+            .stock-price {
+                font-size: 2.2rem;
+            }
+            
+            .input-section {
+                margin-bottom: 20px;
+            }
+        }
+
+        /* Large screens */
+        @media screen and (min-width: 768px) {
+            .container {
+                max-width: 800px;
+                margin: 0 auto;
+                padding: 40px;
+            }
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Silent video to prevent auto-sleep on iOS Safari -->
+    <video id="keepAwake" muted loop playsinline class="hidden">
+        <source src="data:video/mp4;base64,AAAAIGZ0eXBpc29tAAACAGlzb21pc28yYXZjMQAAAAhmcmVlAAAAG21kYXQAAAGvABAHAAABthADAowdbb9/AAAC6W1vb3YAAABsbXZoZAAAAAAAAAAAAAAAAAAAA+gAAAAAAAEAAAEAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAIVdHJhawAAAFx0a2hkAAAAAwAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAkZWR0cwAAABxlbHN0AAAAAAAAAAEAAAAAAAABAAAAAAGzbWRpYQAAACBtZGhkAAAAAAAAAAAAAAAAAABdwAAAAAAAVcQAAAAAAC1oZGxyAAAAAAAAAAB2aWRlAAAAAAAAAAAAAAAAVmlkZW9IYW5kbGVyAAAAAW5taW5mAAAAFHZtaGQAAAABAAAAAAAAAAAAAAAkZGluZgAAABxkcmVmAAAAAAAAAAEAAAAMdXJsIAAAAAEAAAEuc3RibAAAALhzdHNkAAAAAAAAAAEAAACobXAic" type="video/mp4">
+    </video>
+
+    <div class="container">
+        <div class="left-panel">
+            <div class="header">
+                <h1 class="app-title">FINPEEK</h1>
+            </div>
+            
+            <div class="input-section">
+                <input type="text" id="tickerInput" class="ticker-input" placeholder="Enter ticker (e.g., AAPL)" maxlength="10">
+                <button id="searchBtn" class="search-btn">GET QUOTE</button>
+            </div>
+            
+            <div id="stockDisplay" class="stock-display neutral">
+                <div class="loading">Enter a stock ticker to get started</div>
+            </div>
+        </div>
+        
+        <div class="right-panel">
+            <div class="news-section">
+                <h2 class="news-title">Latest News</h2>
+                <div id="newsContainer">
+                    <div class="loading">Stock news will appear here</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js?v=2"></script>
+</body>
+</html>
