@@ -397,17 +397,38 @@
         </div>
     </div>
 
-    <!-- Environment variables from Vercel (production) or local config (development) -->
-    <script src="/env.js"></script>
+    <!-- Load configuration - try env.js first (Vercel), then config.js (local) -->
     <script>
-      // Fallback to local config if env.js fails (for local development)
-      if (!window.ALPHA_VANTAGE_API_KEY) {
+      // Function to load the main app after config is ready
+      function loadApp() {
         const script = document.createElement('script');
-        script.src = 'config.js';
-        script.onerror = () => console.log('No local config found, using demo API key');
+        script.src = 'app.js?v=9';
         document.head.appendChild(script);
       }
+      
+      // Try to load Vercel env.js first
+      const envScript = document.createElement('script');
+      envScript.src = '/env.js';
+      envScript.onload = () => {
+        console.log('Loaded Vercel environment variables');
+        loadApp();
+      };
+      envScript.onerror = () => {
+        // Fallback to local config.js for development
+        console.log('Vercel env.js not found, trying local config.js');
+        const configScript = document.createElement('script');
+        configScript.src = 'config.js';
+        configScript.onload = () => {
+          console.log('Loaded local config.js');
+          loadApp();
+        };
+        configScript.onerror = () => {
+          console.log('No config found, using demo API key');
+          loadApp();
+        };
+        document.head.appendChild(configScript);
+      };
+      document.head.appendChild(envScript);
     </script>
-    <script src="app.js?v=8"></script>
 </body>
 </html>

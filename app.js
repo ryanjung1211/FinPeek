@@ -13,6 +13,7 @@ class FinPeekApp {
         // In production (Vercel), this will be injected during build
         // For local development, you can use the config.js approach
         this.apiKey = window.ALPHA_VANTAGE_API_KEY || window.FINPEEK_CONFIG?.ALPHA_VANTAGE_API_KEY || 'demo';
+        console.log('API Key loaded:', this.apiKey === 'demo' ? 'Using demo key' : 'Using real API key');
         this.init();
     }
 
@@ -74,6 +75,8 @@ class FinPeekApp {
             
             const response = await fetch(quoteUrl);
             const data = await response.json();
+            
+            console.log('API Response for', ticker, ':', data); // Debug log
             
             // Check if we got valid data
             if (data['Global Quote'] && Object.keys(data['Global Quote']).length > 0) {
