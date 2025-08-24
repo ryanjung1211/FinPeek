@@ -52,10 +52,10 @@
             flex-direction: column;
         }
         
-        /* Reduce gap in horizontal mode */
-        @media screen and (orientation: landscape) and (max-height: 450px) {
+        /* Reduce gap in horizontal mode - iPhone 15 Pro specific */
+        @media screen and (orientation: landscape) and (max-height: 400px) {
             .main-content {
-                gap: 10px;
+                gap: 8px;
             }
         }
         
@@ -65,8 +65,8 @@
             }
         }
 
-        /* Hide header in landscape PWA mode to save space */
-        @media screen and (orientation: landscape) and (max-height: 450px) {
+        /* Hide header in landscape PWA mode to save space - iPhone 15 Pro specific */
+        @media screen and (orientation: landscape) and (max-height: 400px) {
             .header {
                 display: none;
             }
@@ -106,8 +106,8 @@
             overflow: hidden;
         }
         
-        /* Hide input section in landscape PWA mode when not in use */
-        @media screen and (orientation: landscape) and (max-height: 450px) {
+        /* Hide input section in landscape PWA mode when not in use - iPhone 15 Pro specific */
+        @media screen and (orientation: landscape) and (max-height: 400px) {
             .input-section.hidden {
                 display: none;
             }
@@ -184,12 +184,12 @@
             min-height: 300px;
         }
         
-        /* Optimize chart boxes for iPhone horizontal PWA mode */
-        @media screen and (orientation: landscape) and (max-height: 450px) {
+        /* Optimize chart boxes for iPhone 15 Pro horizontal PWA mode */
+        @media screen and (orientation: landscape) and (max-height: 400px) {
             .chart-box {
-                padding: 10px;
+                padding: 8px;
                 min-height: auto;
-                height: calc((100vh - env(safe-area-inset-bottom) - 60px) - 10px);
+                height: calc((100vh - env(safe-area-inset-bottom) - 40px) / 2 - 4px);
             }
         }
         
@@ -201,11 +201,11 @@
             transition: background-color 0.3s ease;
         }
         
-        /* Compact stock details for horizontal mode */
-        @media screen and (orientation: landscape) and (max-height: 450px) {
+        /* Compact stock details for iPhone 15 Pro horizontal mode */
+        @media screen and (orientation: landscape) and (max-height: 400px) {
             .stock-details {
-                padding: 8px;
-                margin-bottom: 8px;
+                padding: 6px;
+                margin-bottom: 6px;
             }
         }
 
@@ -239,20 +239,20 @@
             font-weight: 500;
         }
         
-        /* Compact text sizes for horizontal mode */
-        @media screen and (orientation: landscape) and (max-height: 450px) {
+        /* Compact text sizes for iPhone 15 Pro horizontal mode */
+        @media screen and (orientation: landscape) and (max-height: 400px) {
             .stock-symbol {
-                font-size: 1.4rem;
-                margin-bottom: 5px;
+                font-size: 1.2rem;
+                margin-bottom: 3px;
             }
             
             .stock-price {
-                font-size: 2.2rem;
-                margin-bottom: 5px;
+                font-size: 1.8rem;
+                margin-bottom: 3px;
             }
             
             .stock-change {
-                font-size: 1.1rem;
+                font-size: 1rem;
             }
         }
 
@@ -269,10 +269,10 @@
             margin-bottom: 15px;
         }
         
-        /* Compact chart header for horizontal mode */
-        @media screen and (orientation: landscape) and (max-height: 450px) {
+        /* Compact chart header for iPhone 15 Pro horizontal mode */
+        @media screen and (orientation: landscape) and (max-height: 400px) {
             .chart-header {
-                margin-bottom: 8px;
+                margin-bottom: 6px;
             }
         }
 
@@ -307,10 +307,11 @@
             overflow: hidden;
         }
         
-        /* Smaller charts for horizontal mode */
-        @media screen and (orientation: landscape) and (max-height: 450px) {
+        /* Smaller charts for iPhone 15 Pro horizontal mode */
+        @media screen and (orientation: landscape) and (max-height: 400px) {
             .chart-canvas {
-                min-height: 120px;
+                min-height: 100px;
+                flex: 1;
             }
         }
 
@@ -321,10 +322,10 @@
             text-align: center;
         }
         
-        /* Compact market stats for horizontal mode */
-        @media screen and (orientation: landscape) and (max-height: 450px) {
+        /* Compact market stats for iPhone 15 Pro horizontal mode */
+        @media screen and (orientation: landscape) and (max-height: 400px) {
             .market-stats {
-                margin-bottom: 8px;
+                margin-bottom: 6px;
             }
         }
 

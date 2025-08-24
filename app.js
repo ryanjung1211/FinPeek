@@ -312,10 +312,10 @@ class FinPeekApp {
     
     renderSimpleChart(container, dataPoints, color) {
         const width = container.offsetWidth || 300;
-        // Use smaller height for horizontal mode
-        const isHorizontal = window.innerHeight <= 450 && window.innerWidth > window.innerHeight;
-        const height = isHorizontal ? 120 : 150;
-        const padding = isHorizontal ? 8 : 10;
+        // Use smaller height for iPhone 15 Pro horizontal mode
+        const isHorizontal = window.innerHeight <= 400 && window.innerWidth > window.innerHeight;
+        const height = isHorizontal ? 100 : 150;
+        const padding = isHorizontal ? 6 : 10;
         
         const min = Math.min(...dataPoints);
         const max = Math.max(...dataPoints);
