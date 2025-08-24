@@ -404,12 +404,12 @@
         if (document.readyState === 'loading') {
           document.addEventListener('DOMContentLoaded', () => {
             const script = document.createElement('script');
-            script.src = 'app.js?v=11';
+            script.src = 'app.js?v=' + Date.now();
             document.head.appendChild(script);
           });
         } else {
           const script = document.createElement('script');
-          script.src = 'app.js?v=11';
+          script.src = 'app.js?v=' + Date.now();
           document.head.appendChild(script);
         }
       }
