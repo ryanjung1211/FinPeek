@@ -509,10 +509,18 @@ class FinPeekApp {
     }
 }
 
-// Initialize the app when the page loads
-document.addEventListener('DOMContentLoaded', () => {
+// Initialize the app when the script loads (called from the dynamic loader)
+function initFinPeekApp() {
+    console.log('Initializing FinPeekApp...');
     new FinPeekApp();
-});
+}
+
+// Auto-initialize if DOM is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initFinPeekApp);
+} else {
+    initFinPeekApp();
+}
 
 // Service Worker registration for PWA
 if ('serviceWorker' in navigator) {
