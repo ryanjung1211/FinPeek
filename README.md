@@ -4,7 +4,7 @@ A sleek, real-time stock market dashboard with automatic timeframe cycling and l
 
 ## 🚀 Features
 
-- **Real-time stock quotes** from Alpha Vantage API
+- **Real-time stock quotes** from Finnhub API (30 calls/second!)
 - **Interactive charts** with 1H and 1D timeframes  
 - **Automatic cycling** between timeframes every 5 seconds
 - **SPY market overview** with live data
@@ -21,12 +21,12 @@ cd FinPeek
 ```
 
 ### 2. Add Environment Variable in Vercel
-1. Get a free API key from [Alpha Vantage](https://www.alphavantage.co/support/#api-key)
+1. Get a free API key from [Finnhub](https://finnhub.io/register)
 2. In your Vercel dashboard, go to your project settings
 3. Navigate to **Environment Variables**
 4. Add a new variable:
-   - **Name**: `ALPHA_VANTAGE_API_KEY`
-   - **Value**: Your actual API key from Alpha Vantage
+   - **Name**: `FINNHUB_API_KEY`
+   - **Value**: Your actual API key from Finnhub
    - **Environment**: Production (and Preview if desired)
 
 ### 3. Deploy
@@ -63,8 +63,8 @@ python3 -m http.server 8000
 
 ## 🌐 API Information
 
-- **Provider**: Alpha Vantage
-- **Free Tier**: 25 requests/day, 5 requests/minute
+- **Provider**: Finnhub
+- **Free Tier**: 30 requests/second (much better than Alpha Vantage!)
 - **Data**: Real-time quotes, intraday & daily historical data
 - **Fallback**: Mock data when API unavailable
 

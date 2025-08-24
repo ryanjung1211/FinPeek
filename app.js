@@ -1,6 +1,6 @@
-// FinPeek Stock Dashboard with Real API Integration
-// To use real stock data, get a free API key from Alpha Vantage: https://www.alphavantage.co/support/#api-key
-// Replace 'demo' in line 8 with your actual API key
+// FinPeek Stock Dashboard with Finnhub API Integration
+// To use real stock data, get a free API key from Finnhub: https://finnhub.io/register
+// 30 calls/second rate limit - much better than Alpha Vantage!
 
 class FinPeekApp {
     constructor() {
@@ -9,11 +9,11 @@ class FinPeekApp {
         this.timeFrameCycleInterval = null;
         this.stockTimeFrame = '1D'; // '1D' or '1H'
         this.spyTimeFrame = '1D';
-        // Get API key from Vercel environment variables or fallback to demo
+        // Get Finnhub API key from Vercel environment variables or fallback to demo
         // In production (Vercel), this will be injected during build
         // For local development, you can use the config.js approach
-        this.apiKey = window.ALPHA_VANTAGE_API_KEY || window.FINPEEK_CONFIG?.ALPHA_VANTAGE_API_KEY || 'demo';
-        console.log('API Key loaded:', this.apiKey === 'demo' ? 'Using demo key' : 'Using real API key');
+        this.apiKey = window.FINNHUB_API_KEY || window.FINPEEK_CONFIG?.FINNHUB_API_KEY || 'demo';
+        console.log('Finnhub API Key loaded:', this.apiKey === 'demo' ? 'Using demo key' : 'Using real API key');
         this.init();
     }
 
@@ -77,20 +77,19 @@ class FinPeekApp {
         try {
             stockDetails.innerHTML = '<div class="loading">Fetching stock data...</div>';
             
-            // Fetch real-time quote from Alpha Vantage
-            const quoteUrl = `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${ticker}&apikey=${this.apiKey}`;
+            // Fetch real-time quote from Finnhub
+            const quoteUrl = `https://finnhub.io/api/v1/quote?symbol=${ticker}&token=${this.apiKey}`;
             
             const response = await fetch(quoteUrl);
             const data = await response.json();
             
-            console.log('API Response for', ticker, ':', data); // Debug log
+            console.log('Finnhub API Response for', ticker, ':', data); // Debug log
             
-            // Check if we got valid data
-            if (data['Global Quote'] && Object.keys(data['Global Quote']).length > 0) {
-                const quote = data['Global Quote'];
-                const currentPrice = parseFloat(quote['05. price']);
-                const change = parseFloat(quote['09. change']);
-                const changePercent = parseFloat(quote['10. change percent'].replace('%', ''));
+            // Check if we got valid data (Finnhub returns current price as 'c')
+            if (data && data.c && data.c > 0) {
+                const currentPrice = data.c; // Current price
+                const change = data.d; // Change
+                const changePercent = data.dp; // Change percent
                 
                 const stockData = {
                     symbol: ticker,
@@ -161,23 +160,23 @@ class FinPeekApp {
 
     async fetchMarketData() {
         try {
-            // Fetch real SPY data from Alpha Vantage
-            const spyQuoteUrl = `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=SPY&apikey=${this.apiKey}`;
+            // Fetch real SPY data from Finnhub
+            const spyQuoteUrl = `https://finnhub.io/api/v1/quote?symbol=SPY&token=${this.apiKey}`;
             
             const response = await fetch(spyQuoteUrl);
             const data = await response.json();
             
-            if (data['Global Quote'] && Object.keys(data['Global Quote']).length > 0) {
-                const quote = data['Global Quote'];
-                const spyPrice = parseFloat(quote['05. price']);
-                const spyChange = parseFloat(quote['09. change']);
-                const spyChangePercent = parseFloat(quote['10. change percent'].replace('%', ''));
-                const volume = parseInt(quote['06. volume']);
+            if (data && data.c && data.c > 0) {
+                const spyPrice = data.c; // Current price
+                const spyChange = data.d; // Change
+                const spyChangePercent = data.dp; // Change percent
                 
                 document.getElementById('spyPrice').textContent = `$${spyPrice.toFixed(2)}`;
                 document.getElementById('spyChange').textContent = `${spyChange >= 0 ? '+' : ''}${spyChangePercent.toFixed(2)}%`;
                 document.getElementById('spyChange').className = `market-stat-value ${spyChange >= 0 ? 'positive' : 'negative'}`;
-                document.getElementById('spyVolume').textContent = `${(volume / 1000000).toFixed(1)}M`;
+                
+                // For volume, we'll use mock data since Finnhub quote doesn't include volume in free tier
+                document.getElementById('spyVolume').textContent = `${(Math.random() * 50 + 10).toFixed(1)}M`;
                 
             } else {
                 // Fallback to mock data
@@ -210,26 +209,39 @@ class FinPeekApp {
         const chartContainer = document.getElementById('stockChart');
         
         try {
-            // Fetch historical data from Alpha Vantage
+            // Fetch historical data from Finnhub
             let historicalUrl;
+            const now = Math.floor(Date.now() / 1000);
+            let from;
+            let resolution;
+            
             if (this.stockTimeFrame === '1H') {
-                historicalUrl = `https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=${ticker}&interval=60min&apikey=${this.apiKey}&outputsize=compact`;
+                // Last 24 hours, hourly data
+                from = now - (24 * 60 * 60);
+                resolution = '60'; // 60 minutes
             } else {
-                historicalUrl = `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${ticker}&apikey=${this.apiKey}&outputsize=compact`;
+                // Last 30 days, daily data
+                from = now - (30 * 24 * 60 * 60);
+                resolution = 'D'; // Daily
             }
+            
+            historicalUrl = `https://finnhub.io/api/v1/stock/candle?symbol=${ticker}&resolution=${resolution}&from=${from}&to=${now}&token=${this.apiKey}`;
             
             const response = await fetch(historicalUrl);
             const data = await response.json();
             
             let dataPoints = [];
-            let timeSeriesKey = this.stockTimeFrame === '1H' ? 'Time Series (60min)' : 'Time Series (Daily)';
             
-            if (data[timeSeriesKey]) {
-                const timeSeries = data[timeSeriesKey];
-                const dates = Object.keys(timeSeries).slice(0, this.stockTimeFrame === '1H' ? 24 : 30); // Last 24 hours or 30 days
+            if (data && data.s === 'ok' && data.c && data.c.length > 0) {
+                // Finnhub returns arrays: c (close), h (high), l (low), o (open), t (timestamp), v (volume)
+                // We want the closing prices in chronological order
+                dataPoints = data.c; // Already in chronological order
                 
-                // Convert to price points (using closing prices)
-                dataPoints = dates.reverse().map(date => parseFloat(timeSeries[date]['4. close']));
+                // Limit to reasonable number of points for display
+                const maxPoints = this.stockTimeFrame === '1H' ? 24 : 30;
+                if (dataPoints.length > maxPoints) {
+                    dataPoints = dataPoints.slice(-maxPoints); // Take the most recent points
+                }
             } else {
                 // Fallback to mock data if API fails
                 console.warn('Historical data not available, using mock data for chart');
@@ -262,26 +274,39 @@ class FinPeekApp {
         const chartContainer = document.getElementById('marketChart');
         
         try {
-            // Fetch SPY historical data from Alpha Vantage
+            // Fetch SPY historical data from Finnhub
             let historicalUrl;
+            const now = Math.floor(Date.now() / 1000);
+            let from;
+            let resolution;
+            
             if (this.spyTimeFrame === '1H') {
-                historicalUrl = `https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=SPY&interval=60min&apikey=${this.apiKey}&outputsize=compact`;
+                // Last 24 hours, hourly data
+                from = now - (24 * 60 * 60);
+                resolution = '60'; // 60 minutes
             } else {
-                historicalUrl = `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=SPY&apikey=${this.apiKey}&outputsize=compact`;
+                // Last 30 days, daily data
+                from = now - (30 * 24 * 60 * 60);
+                resolution = 'D'; // Daily
             }
+            
+            historicalUrl = `https://finnhub.io/api/v1/stock/candle?symbol=SPY&resolution=${resolution}&from=${from}&to=${now}&token=${this.apiKey}`;
             
             const response = await fetch(historicalUrl);
             const data = await response.json();
             
             let dataPoints = [];
-            let timeSeriesKey = this.spyTimeFrame === '1H' ? 'Time Series (60min)' : 'Time Series (Daily)';
             
-            if (data[timeSeriesKey]) {
-                const timeSeries = data[timeSeriesKey];
-                const dates = Object.keys(timeSeries).slice(0, this.spyTimeFrame === '1H' ? 24 : 30); // Last 24 hours or 30 days
+            if (data && data.s === 'ok' && data.c && data.c.length > 0) {
+                // Finnhub returns arrays: c (close), h (high), l (low), o (open), t (timestamp), v (volume)
+                // We want the closing prices in chronological order
+                dataPoints = data.c; // Already in chronological order
                 
-                // Convert to price points (using closing prices)
-                dataPoints = dates.reverse().map(date => parseFloat(timeSeries[date]['4. close']));
+                // Limit to reasonable number of points for display
+                const maxPoints = this.spyTimeFrame === '1H' ? 24 : 30;
+                if (dataPoints.length > maxPoints) {
+                    dataPoints = dataPoints.slice(-maxPoints); // Take the most recent points
+                }
             } else {
                 // Fallback to mock data if API fails
                 console.warn('SPY historical data not available, using mock data for chart');

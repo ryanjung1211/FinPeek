@@ -7,8 +7,8 @@ export default function handler(req, res) {
   // Inject environment variables into JavaScript
   const envScript = `
 // Environment variables injected by Vercel
-window.ALPHA_VANTAGE_API_KEY = '${process.env.ALPHA_VANTAGE_API_KEY || 'demo'}';
-console.log('API Key loaded:', window.ALPHA_VANTAGE_API_KEY ? 'Present' : 'Missing');
+window.FINNHUB_API_KEY = '${process.env.FINNHUB_API_KEY || 'demo'}';
+console.log('Finnhub API Key loaded:', window.FINNHUB_API_KEY ? 'Present' : 'Missing');
 `;
   
   res.status(200).send(envScript);
